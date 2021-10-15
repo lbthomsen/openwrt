@@ -41,6 +41,7 @@ endef
 TARGET_DEVICES += meraki_mr24
 
 define Device/meraki_mx60
+  DEFAULT := n
   DEVICE_VENDOR := Cisco Meraki
   DEVICE_MODEL := MX60/MX60W
   DEVICE_PACKAGES := kmod-spi-gpio kmod-usb-ledtrig-usbport kmod-usb-dwc2 \
@@ -68,11 +69,14 @@ define Device/netgear_wndap6x0
   DTB_SIZE := 32768
   IMAGE_SIZE := 27392k
   IMAGES := sysupgrade.bin factory.img
-  KERNEL_SIZE := 4032k
+  KERNEL_SIZE := 6080k
   KERNEL := dtb | kernel-bin | gzip | MuImage-initramfs gzip
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   IMAGE/factory.img := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi
   UBINIZE_OPTS := -E 5
+  DEVICE_COMPAT_VERSION := 2.0
+  DEVICE_COMPAT_MESSAGE := kernel and ubi partitions had to be resized. \
+       Upgrade via sysupgrade mechanism is not possible.
 endef
 
 define Device/netgear_wndap620
@@ -106,7 +110,7 @@ define Device/netgear_wndr4700
   KERNEL_SIZE := 3584k
   # append a fake/empty rootfs to fool netgear's uboot
   # CHECK_DNI_FIRMWARE_ROOTFS_INTEGRITY in do_chk_dniimg()
-  KERNEL := kernel-bin | lzma | uImage lzma | pad-offset $$(BLOCKSIZE) 64 | \
+  KERNEL := kernel-bin | lzma -d16 | uImage lzma | pad-offset $$(BLOCKSIZE) 64 | \
 	    append-uImage-fakehdr filesystem | dtb | create-uImage-dtb | prepend-dtb
   KERNEL_INITRAMFS := kernel-bin | gzip | dtb | MuImage-initramfs gzip
   IMAGE/factory.img := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi | \
@@ -117,6 +121,5 @@ define Device/netgear_wndr4700
   NETGEAR_HW_ID := 29763875+128+256
   UBINIZE_OPTS := -E 5
   SUPPORTED_DEVICES += wndr4700
-  DEFAULT := n
 endef
 TARGET_DEVICES += netgear_wndr4700

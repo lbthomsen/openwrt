@@ -1,18 +1,18 @@
+# SPDX-License-Identifier: GPL-2.0-only
 #
 # Copyright (C) 2009-2013 OpenWrt.org
-#
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
-#
 
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/image.mk
 
 KERNEL_LOADADDR:=0x8000
 
-define Device/dsa-migration
-  DEVICE_COMPAT_VERSION := 1.1
-  DEVICE_COMPAT_MESSAGE := Config cannot be migrated from swconfig to DSA
+define Device/kernel-size-migration
+  DEVICE_COMPAT_VERSION := 2.0
+  DEVICE_COMPAT_MESSAGE := Partition design has changed compared to \
+	older versions (up to 21.02) due to kernel size restrictions. \
+	Upgrade via sysupgrade mechanism is not possible, so new \
+	installation via factory style image is required.
 endef
 
 define Device/Default
@@ -30,7 +30,6 @@ define Device/Default
   IMAGES := sysupgrade.bin factory.bin
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   IMAGE/factory.bin := append-ubi
-  SUPPORTED_DEVICES = $(subst _,$(comma),$(1))
 endef
 
 define Device/checkpoint_l-50
@@ -71,6 +70,13 @@ define Device/cloudengines_pogoplugv4
 endef
 TARGET_DEVICES += cloudengines_pogoplugv4
 
+define Device/globalscale_sheevaplug
+  DEVICE_VENDOR := Globalscale
+  DEVICE_MODEL := Sheevaplug
+  DEVICE_PACKAGES := kmod-mvsdio
+endef
+TARGET_DEVICES += globalscale_sheevaplug
+
 define Device/iom_iconnect-1.1
   DEVICE_VENDOR := Iomega
   DEVICE_MODEL := Iconnect
@@ -107,31 +113,31 @@ endef
 
 define Device/linksys_e4200-v2
   $(Device/linksys)
-  $(Device/dsa-migration)
+  $(Device/kernel-size-migration)
   DEVICE_MODEL := E4200
   DEVICE_VARIANT := v2
-  KERNEL_SIZE := 2688k
+  KERNEL_SIZE := 3072k
   SUPPORTED_DEVICES += linksys,viper linksys-viper
 endef
 TARGET_DEVICES += linksys_e4200-v2
 
 define Device/linksys_ea3500
   $(Device/linksys)
-  $(Device/dsa-migration)
+  $(Device/kernel-size-migration)
   DEVICE_MODEL := EA3500
   PAGESIZE := 512
   SUBPAGESIZE := 256
   BLOCKSIZE := 16k
-  KERNEL_SIZE := 2624k
+  KERNEL_SIZE := 3072k
   SUPPORTED_DEVICES += linksys,audi linksys-audi
 endef
 TARGET_DEVICES += linksys_ea3500
 
 define Device/linksys_ea4500
   $(Device/linksys)
-  $(Device/dsa-migration)
+  $(Device/kernel-size-migration)
   DEVICE_MODEL := EA4500
-  KERNEL_SIZE := 2688k
+  KERNEL_SIZE := 3072k
   SUPPORTED_DEVICES += linksys,viper linksys-viper
 endef
 TARGET_DEVICES += linksys_ea4500
@@ -144,6 +150,18 @@ define Device/raidsonic_ib-nas62x0
   SUPPORTED_DEVICES += ib62x0
 endef
 TARGET_DEVICES += raidsonic_ib-nas62x0
+
+define Device/seagate_blackarmor-nas220
+  DEVICE_VENDOR := Seagate
+  DEVICE_MODEL := Blackarmor NAS220
+  DEVICE_PACKAGES := kmod-hwmon-adt7475 kmod-fs-ext4 kmod-ata-marvell-sata \
+	mdadm kmod-gpio-button-hotplug
+  PAGESIZE := 512
+  SUBPAGESIZE := 256
+  BLOCKSIZE := 16k
+  UBINIZE_OPTS := -e 1
+endef
+TARGET_DEVICES += seagate_blackarmor-nas220
 
 define Device/seagate_dockstar
   DEVICE_VENDOR := Seagate
