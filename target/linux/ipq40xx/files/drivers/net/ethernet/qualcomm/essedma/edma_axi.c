@@ -19,9 +19,11 @@
 #include <linux/timer.h>
 #include <linux/of_platform.h>
 #include <linux/of_address.h>
+#include <linux/of_mdio.h>
 #include <linux/clk.h>
 #include <linux/string.h>
 #include <linux/reset.h>
+#include <linux/version.h>
 #include "edma.h"
 #include "ess_edma.h"
 
@@ -713,9 +715,7 @@ static int edma_axi_probe(struct platform_device *pdev)
 	struct device_node *np = pdev->dev.of_node;
 	struct device_node *pnp;
 	struct device_node *mdio_node = NULL;
-	struct platform_device *mdio_plat = NULL;
 	struct mii_bus *miibus = NULL;
-	struct edma_mdio_data *mdio_data = NULL;
 	int i, j, k, err = 0;
 	int portid_bmp;
 	int idx = 0, idx_mac = 0;
@@ -889,25 +889,9 @@ static int edma_axi_probe(struct platform_device *pdev)
 			goto err_mdiobus_init_fail;
 		}
 
-		mdio_plat = of_find_device_by_node(mdio_node);
-		if (!mdio_plat) {
-			dev_err(&pdev->dev,
-				"cannot find platform device from mdio node");
-			of_node_put(mdio_node);
-			err = -EIO;
-			goto err_mdiobus_init_fail;
-		}
-
-		mdio_data = dev_get_drvdata(&mdio_plat->dev);
-		if (!mdio_data) {
-			dev_err(&pdev->dev,
-				"cannot get mii bus reference from device data");
-			of_node_put(mdio_node);
-			err = -EIO;
-			goto err_mdiobus_init_fail;
-		}
-
-		miibus = mdio_data->mii_bus;
+		miibus = of_mdio_find_bus(mdio_node);
+		if (!miibus)
+			return -EINVAL;
 	}
 
 	if (of_property_read_bool(np, "qcom,single-phy") &&
@@ -922,8 +906,6 @@ static int edma_axi_probe(struct platform_device *pdev)
 	}
 
 	for_each_available_child_of_node(np, pnp) {
-		const char *mac_addr;
-
 		/* this check is needed if parent and daughter dts have
 		 * different number of gmac nodes
 		 */
@@ -932,9 +914,7 @@ static int edma_axi_probe(struct platform_device *pdev)
 			break;
 		}
 
-		mac_addr = of_get_mac_address(pnp);
-		if (!IS_ERR(mac_addr))
-			memcpy(edma_netdev[idx_mac]->dev_addr, mac_addr, ETH_ALEN);
+		of_get_mac_address(pnp, edma_netdev[idx_mac]->dev_addr);
 
 		idx_mac++;
 	}
@@ -1205,10 +1185,17 @@ static int edma_axi_probe(struct platform_device *pdev)
 
 	for (i = 0; i < edma_cinfo->num_gmac; i++) {
 		if (adapter[i]->poll_required) {
-			int phy_mode = of_get_phy_mode(np);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,5,0)
+			phy_interface_t phy_mode;
 
+			err = of_get_phy_mode(np, &phy_mode);
+			if (err)
+				phy_mode = PHY_INTERFACE_MODE_SGMII;
+#else
+			int phy_mode = of_get_phy_mode(np);
 			if (phy_mode < 0)
 				phy_mode = PHY_INTERFACE_MODE_SGMII;
+#endif
 			adapter[i]->phydev =
 				phy_connect(edma_netdev[i],
 					    (const char *)adapter[i]->phy_id,
