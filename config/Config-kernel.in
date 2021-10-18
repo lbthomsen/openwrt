@@ -1,8 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-only
+#
 # Copyright (C) 2006-2014 OpenWrt.org
-#
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
-#
 
 config KERNEL_BUILD_USER
 	string "Custom Kernel Build User Name"
@@ -34,6 +32,10 @@ config KERNEL_CRASHLOG
 config KERNEL_SWAP
 	bool "Support for paging of anonymous memory (swap)"
 	default y if !SMALL_FLASH
+
+config KERNEL_PROC_STRIPPED
+	bool "Strip non-essential /proc functionality to reduce code size"
+	default y if SMALL_FLASH
 
 config KERNEL_DEBUG_FS
 	bool "Compile the kernel with debug filesystem enabled"
@@ -361,16 +363,16 @@ config KERNEL_KPROBES
 	  instrumentation and testing.
 	  If in doubt, say "N".
 
-config KERNEL_KPROBE_EVENT
-	bool
-	default y if KERNEL_KPROBES
-
 config KERNEL_KPROBE_EVENTS
 	bool
 	default y if KERNEL_KPROBES
 
 config KERNEL_AIO
 	bool "Compile the kernel with asynchronous IO support"
+	default y if !SMALL_FLASH
+
+config KERNEL_IO_URING
+	bool "Compile the kernel with io_uring support"
 	default y if !SMALL_FLASH
 
 config KERNEL_FHANDLE
@@ -434,34 +436,22 @@ config KERNEL_PROVE_LOCKING
 	select KERNEL_DEBUG_KERNEL
 	default n
 
-config KERNEL_LOCKUP_DETECTOR
-	bool "Compile the kernel with detect Hard and Soft Lockups"
+config KERNEL_SOFTLOCKUP_DETECTOR
+	bool "Compile the kernel with detect Soft Lockups"
 	depends on KERNEL_DEBUG_KERNEL
 	help
 	  Say Y here to enable the kernel to act as a watchdog to detect
-	  hard and soft lockups.
+	  soft lockups.
 
 	  Softlockups are bugs that cause the kernel to loop in kernel
 	  mode for more than 20 seconds, without giving other tasks a
 	  chance to run.  The current stack trace is displayed upon
 	  detection and the system will stay locked up.
 
-	  Hardlockups are bugs that cause the CPU to loop in kernel mode
-	  for more than 10 seconds, without letting other interrupts have a
-	  chance to run.  The current stack trace is displayed upon detection
-	  and the system will stay locked up.
-
-	  The overhead should be minimal.  A periodic hrtimer runs to
-	  generate interrupts and kick the watchdog task every 4 seconds.
-	  An NMI is generated every 10 seconds or so to check for hardlockups.
-
-	  The frequency of hrtimer and NMI events and the soft and hard lockup
-	  thresholds can be controlled through the sysctl watchdog_thresh.
-
 config KERNEL_DETECT_HUNG_TASK
 	bool "Compile the kernel with detect Hung Tasks"
 	depends on KERNEL_DEBUG_KERNEL
-	default KERNEL_LOCKUP_DETECTOR
+	default KERNEL_SOFTLOCKUP_DETECTOR
 	help
 	  Say Y here to enable the kernel to detect "hung tasks",
 	  which are bugs that cause the task to be stuck in
@@ -966,6 +956,15 @@ if KERNEL_IPV6
 	config KERNEL_IPV6_PIMSM_V2
 		def_bool n
 
+	config KERNEL_IPV6_SEG6_LWTUNNEL
+		bool "Enable support for lightweight tunnels"
+		default y if !SMALL_FLASH
+		help
+		  Using lwtunnel (needed for IPv6 segment routing) requires ip-full package.
+
+	config KERNEL_LWTUNNEL_BPF
+		def_bool n
+
 endif
 
 #
@@ -1162,6 +1161,16 @@ config KERNEL_SECURITY_SELINUX_DEVELOP
 	bool "NSA SELinux Development Support"
 	depends on KERNEL_SECURITY_SELINUX
 	default y
+
+config KERNEL_SECURITY_SELINUX_SIDTAB_HASH_BITS
+	int
+	depends on KERNEL_SECURITY_SELINUX
+	default 9
+
+config KERNEL_SECURITY_SELINUX_SID2STR_CACHE_SIZE
+	int
+	depends on KERNEL_SECURITY_SELINUX
+	default 256
 
 config KERNEL_LSM
 	string
