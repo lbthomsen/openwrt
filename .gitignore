@@ -3,7 +3,7 @@
 .*.swp
 /env
 /dl
-/.config
+#/.config
 /.config.old
 /bin
 /build_dir
@@ -11,7 +11,6 @@
 /tmp
 /logs
 /feeds
-/feeds.conf
 /files
 /overlay
 /package/feeds
