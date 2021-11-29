@@ -4,6 +4,7 @@
 /env
 /dl
 #/.config
+./feeds.conf
 /.config.old
 /.toolchain_build_ver
 /bin
