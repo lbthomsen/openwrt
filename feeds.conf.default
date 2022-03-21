@@ -4,6 +4,7 @@ src-git routing https://github.com/lbthomsen/openwrt-routing.git
 src-git telephony https://github.com/lbthomsen/openwrt-telephony.git
 src-git freifunk https://github.com/lbthomsen/openwrt-freifunk.git
 src-git extra https://github.com/lbthomsen/openwrt-extra.git
+src-git lifeline https://github.com/optdyn/openwrt-lifeline.git
 #src-git video https://github.com/openwrt/video.git
 #src-git targets https://github.com/openwrt/targets.git
 #src-git oldpackages http://git.openwrt.org/packages.git
