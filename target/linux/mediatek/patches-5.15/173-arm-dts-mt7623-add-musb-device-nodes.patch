@@ -68,6 +68,19 @@ Index: linux-5.15.34/arch/arm/boot/dts/mt7623.dtsi
  	audsys: clock-controller@11220000 {
  		compatible = "mediatek,mt7623-audsys",
  			     "mediatek,mt2701-audsys",
+@@ -1263,4 +1309,12 @@
+ 				 <MT7623_PIN_201_UTXD2_FUNC_UTXD2>;
+ 		};
+ 	};
++
++	mush_pins_a: musb {
++		phandle = <0x22>;
++
++		pins-musb {
++			pinmux = <0xed02>;
++		};
++	};
+ };
 Index: linux-5.15.34/arch/arm/boot/dts/mt7623a.dtsi
 ===================================================================
 --- linux-5.15.34.orig/arch/arm/boot/dts/mt7623a.dtsi
