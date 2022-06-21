@@ -68,7 +68,34 @@ Index: linux-5.15.34/arch/arm/boot/dts/mt7623.dtsi
  	audsys: clock-controller@11220000 {
  		compatible = "mediatek,mt7623-audsys",
  			     "mediatek,mt2701-audsys",
-@@ -1263,4 +1309,22 @@
+@@ -710,6 +756,26 @@
+ 		#clock-cells = <1>;
+ 	};
+ 
++	consys: consys@18070000 {
++		compatible = "mediatek,mt7623-consys";
++		reg = <0x00 0x18070000 0x00 0x200 0x00 0x10001000 0x00 0x1600>;
++		clocks = <0x02 0x09>;
++		clock-names = "consysbus";
++		power-domains = <0x1f 0x00>;
++		interrupts = <0x00 0xb9 0x08 0x00 0xa3 0x08>;
++		resets = <0x2a 0x0c>;
++		reset-names = "connsys";
++		status = "okay";
++		mediatek,pwrap-regmap = <0x2b>;
++		pinctrl-names = "default";
++		pinctrl-0 = <0x2c>;
++		vcn18-supply = <0x2d>;
++		vcn28-supply = <0x2e>;
++		vcn33_bt-supply = <0x2f>;
++		vcn33_wifi-supply = <0x30>;
++		phandle = <0x93>;
++	};
++
+ 	hifsys: syscon@1a000000 {
+ 		compatible = "mediatek,mt7623-hifsys",
+ 			     "mediatek,mt2701-hifsys",
+@@ -1263,4 +1329,22 @@
  				 <MT7623_PIN_201_UTXD2_FUNC_UTXD2>;
  		};
  	};
