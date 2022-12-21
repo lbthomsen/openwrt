@@ -243,7 +243,7 @@ define KernelPackage/dm
     $(LINUX_DIR)/drivers/md/dm-bufio.ko \
     $(LINUX_DIR)/drivers/md/dm-snapshot.ko \
     $(LINUX_DIR)/drivers/md/dm-region-hash.ko
-  AUTOLOAD:=$(call AutoLoad,30,dm-mod dm-log dm-region-hash dm-mirror dm-crypt,1)
+  AUTOLOAD:=$(call AutoLoad,30,dm-mod dm-log dm-bufio dm-snapshot dm-region-hash dm-mirror dm-crypt,1)
 endef
 
 define KernelPackage/dm/description
