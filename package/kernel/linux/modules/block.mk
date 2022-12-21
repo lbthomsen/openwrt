@@ -1,6 +1,4 @@
 #
-# Copyright (C) 2006-2012 OpenWrt.org
-#
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
 #
@@ -242,6 +240,8 @@ define KernelPackage/dm
     $(LINUX_DIR)/drivers/md/dm-crypt.ko \
     $(LINUX_DIR)/drivers/md/dm-log.ko \
     $(LINUX_DIR)/drivers/md/dm-mirror.ko \
+    $(LINUX_DIR)/drivers/md/dm-bufio.ko \
+    $(LINUX_DIR)/drivers/md/dm-snapshot.ko \
     $(LINUX_DIR)/drivers/md/dm-region-hash.ko
   AUTOLOAD:=$(call AutoLoad,30,dm-mod dm-log dm-region-hash dm-mirror dm-crypt,1)
 endef
