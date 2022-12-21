@@ -19,7 +19,7 @@ feeds.conf
 /package/openwrt-packages
 /*.patch
 /llvm-bpf*
-key-build*
+#key-build*
 *.orig
 *.rej
 *~
